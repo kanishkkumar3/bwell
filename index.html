@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>USA Map with Leaflet</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 90vh; width: 70%; float: right; }
+        #info { height: 90vh; width: 28%; float: left; padding: 10px; border: 1px solid black; }
+    </style>
+</head>
+<body>
+    <div id="info"><h2>State Information</h2><div id="state-info"></div></div>
+    <div id="map"></div>
+    
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        var map = L.map('map').setView([37.8, -96], 4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        axios.get('path/to/your/states.geojson').then(function(response) {
+            var geojson = L.geoJson(response.data, {
+                onEachFeature: function(feature, layer) {
+                    layer.on({
+                        click: function(e) {
+                            var properties = feature.properties;
+                            var info = "<h3>" + properties.name + "</h3>";
+                            info += "<p>" + properties.description + "</p>";
+                            document.getElementById('state-info').innerHTML = info;
+                        }
+                    });
+                }
+            }).addTo(map);
+        }).catch(function(error) {
+            console.log('Error loading the GeoJSON file:', error);
+        });
+    </script>
+</body>
+</html>
